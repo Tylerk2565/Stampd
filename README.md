@@ -1,4 +1,4 @@
-# Stamp'd &nbsp;·&nbsp; Mobile App
+# Stampd &nbsp;·&nbsp; Mobile App
 
 > Screen previews — onboarding & authentication
 
