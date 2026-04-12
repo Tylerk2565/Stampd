@@ -15,7 +15,7 @@ export default function ProfileTab() {
 
   async function getProfile() {
     const { data: UserProfle, error } = await supabase.from("profiles").select();
-    setProfile(data);
+    // setProfile();
   }
 
   return (
