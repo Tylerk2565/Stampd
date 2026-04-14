@@ -1,6 +1,6 @@
 export interface UserProfile {
   id: string;
-  full_name: string;
+  first_name: string;
   email: string;
   gender: "male" | "female";
   birthdate: string;

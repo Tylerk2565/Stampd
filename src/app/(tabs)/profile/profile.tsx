@@ -5,18 +5,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { UserProfile } from "@/types/database";
 
 export default function ProfileTab() {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    getProfile();
-  }, []);
-
-  async function getProfile() {
-    const { data: UserProfle, error } = await supabase.from("profiles").select();
-    // setProfile();
-  }
 
   return (
     <SafeAreaView>

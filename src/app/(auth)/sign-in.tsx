@@ -1,51 +1,51 @@
+import { useAuthContext } from "@/hooks/use-auth-context";
+import { useColors } from "@/hooks/use-colors";
+import { supabase } from "@/lib/supabase";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useState } from "react";
 import {
+  Alert,
+  Keyboard,
   KeyboardAvoidingView,
-  View,
+  Pressable,
   Text,
   TextInput,
-  Pressable,
   TouchableWithoutFeedback,
-  Keyboard,
-  Image,
-  Alert,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
-import { useRouter, Link } from "expo-router";
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { supabase } from "@/lib/supabase";
-import { useColors } from "@/hooks/use-colors";
-import { StatusBar } from "expo-status-bar";
 // import { signInWithProvider } from "@/lib/auth";
 
 export default function SignInPage() {
   const router = useRouter();
   const colors = useColors();
+  const { isLoggedIn } = useAuthContext();
 
   const [showPw, setShowPw] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert("Error", "Please enter both email and password");
-      return;
-    }
+  async function handleSignIn() {
+    setLoading(true);
     try {
-      setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
-      router.replace("/(tabs)/home/home")
-    } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to sign in");
+      if (error) {
+        Alert.alert(error.message);
+      } else {
+        router.replace("/(tabs)/home/home");
+      }
+    } catch (error) {
+      Alert.alert("Unexpected error", "Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
@@ -141,14 +141,15 @@ export default function SignInPage() {
               </Pressable>
 
               {/* Forgot Password */}
-                <Pressable 
-                  accessibilityRole="link" 
-                  className="self-center"
-                  onPress={() => router.push("/forgot")}>
-                  <Text className="text-blue-500 dark:text-blue-400">
-                    Forgot password?
-                  </Text>
-                </Pressable>
+              <Pressable
+                accessibilityRole="link"
+                className="self-center"
+                onPress={() => router.push("/forgot")}
+              >
+                <Text className="text-blue-500 dark:text-blue-400">
+                  Forgot password?
+                </Text>
+              </Pressable>
 
               {/* OR divider */}
               <View className="flex-row items-center my-1">
@@ -196,14 +197,14 @@ export default function SignInPage() {
               <View className="items-center mt-5 pb-3">
                 <Text className="text-sm text-neutral-900 dark:text-white">
                   Don't have an account?{" "}
-                    <Text
-                      accessibilityRole="link"
-                      accessibilityLabel="Create account"
-                      className="text-blue-500 dark:text-blue-400"
-                      onPress={() => router.replace("/create-account")}
-                    >
-                      Create one
-                    </Text>
+                  <Text
+                    accessibilityRole="link"
+                    accessibilityLabel="Create account"
+                    className="text-blue-500 dark:text-blue-400"
+                    onPress={() => router.replace("/create-account")}
+                  >
+                    Create one
+                  </Text>
                 </Text>
               </View>
             </View>

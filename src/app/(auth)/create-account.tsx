@@ -1,20 +1,19 @@
+import { useColors } from "@/hooks/use-colors";
+import { supabase } from "@/lib/supabase";
+import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import { Link, useRouter } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
+  Keyboard,
   KeyboardAvoidingView,
-  View,
+  Pressable,
   Text,
   TextInput,
-  Pressable,
   TouchableWithoutFeedback,
-  Keyboard,
-  Image,
-  Alert,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useState } from "react";
-import { useRouter, Link } from "expo-router";
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { supabase } from "@/lib/supabase";
-import { useColors } from "@/hooks/use-colors";
 // import { signInWithProvider } from "@/lib/auth";
 import { StatusBar } from "expo-status-bar";
 
@@ -23,46 +22,33 @@ export default function CreateAccountPage() {
   const colors = useColors();
 
   const [showPassword, setShowPassword] = useState(false);
-  const [showPassword2, setShowPassword2] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
   const [consent, setConsent] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleCreateAccount = async () => {
-    if (!email) return Alert.alert("Please enter a valid email");
-    if (password.length < 8)
-      return Alert.alert("Password must be at least 8 characters");
-    if (password !== password2) return Alert.alert("Passwords do not match");
-    if (!consent) return Alert.alert("Please agree to continue");
+  // check if inputs are valid via regex or I can use zod
+  // check if user already exists in supabase db, return error if exists
+  // create user if inputs are valid
+  // work on authstate, tokens, jwt, etc for after creating account
 
+  // handle consent as well
+
+  async function handleCreateAccount() {
+    setLoading(true);
     try {
-      setLoading(true);
-
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
-
-      const {
-        data: { user },
-        error: getUserErr,
-      } = await supabase.auth.getUser();
-      if (getUserErr) throw getUserErr;
-
-      if (user) {
-        router.replace("/(onboarding)/step1-basic");
+      if (error) {
+        Alert.alert(error.message);
       } else {
-        Alert.alert(
-          "Check your email",
-          "We sent you a verification link. Open it, then return to the app and continue.",
-        );
+        router.replace("/(onboarding)/step1-basic");
       }
-    } catch (e: any) {
-      Alert.alert("Sign up failed", e.message ?? String(e));
+    } catch (error) {
+      Alert.alert("Unexpected error", "Please try again.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white dark:bg-neutral-950">
@@ -70,7 +56,7 @@ export default function CreateAccountPage() {
       <KeyboardAvoidingView className="flex-1">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View className="flex-1 px-4">
-            {/* Back */}
+            {/* Back Button */}
             <Pressable
               onPress={() => router.back()}
               accessibilityRole="button"
@@ -133,34 +119,6 @@ export default function CreateAccountPage() {
                 >
                   <MaterialIcons
                     name={showPassword ? "visibility-off" : "visibility"}
-                    size={22}
-                    color={colors.iconMuted}
-                  />
-                </Pressable>
-              </View>
-
-              {/* Confirm Password */}
-              <View className="relative">
-                <TextInput
-                  className="h-12 rounded-xl px-3.5 pr-12 text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700"
-                  placeholder="Confirm password"
-                  placeholderTextColor="#9ca3af"
-                  secureTextEntry={!showPassword2}
-                  textContentType="newPassword"
-                  value={password2}
-                  onChangeText={setPassword2}
-                />
-                <Pressable
-                  onPress={() => setShowPassword2((s) => !s)}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    showPassword2 ? "Hide password" : "Show password"
-                  }
-                  hitSlop={10}
-                  className="absolute right-2.5 top-2.5 w-7 h-7 rounded-full items-center justify-center"
-                >
-                  <MaterialIcons
-                    name={showPassword2 ? "visibility-off" : "visibility"}
                     size={22}
                     color={colors.iconMuted}
                   />
@@ -261,7 +219,7 @@ export default function CreateAccountPage() {
                   <Text
                     accessibilityRole="link"
                     className="text-blue-500 dark:text-blue-400"
-                    onPress={() => router.replace("/sign-in")}
+                    onPress={() => router.replace("/(auth)/sign-in")}
                   >
                     Sign in
                   </Text>
